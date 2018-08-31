@@ -34,7 +34,7 @@ L298NEM::L298NEM(uint8_t ena,uint8_t in1,uint8_t in2,uint8_t enb,uint8_t in3,uin
   pinMode (_IN4, OUTPUT);
 }
 //------------------------------------------------
-void L298NEM::forward ()
+void L298NEM::backward ()
 {
   //Direccion motor A
   digitalWrite (_IN1, LOW);
@@ -47,7 +47,7 @@ void L298NEM::forward ()
 
 }
 //------------------------------------------------
-void L298NEM::backward ()
+void L298NEM::forward ()
 {
   //Direccion motor A
   digitalWrite (_IN1, HIGH);
@@ -103,19 +103,4 @@ uint8_t L298NEM::speed (uint8_t s)
   _speed=s;
   return _speed;
 }
-//------------------------------------------------
-uint8_t L298NEM::brake ()
-{
-  if (_speed>10)  _speed=_speed-10;        
-  else _speed=0;
-  speed(_speed);
-  return _speed;
-}
-//------------------------------------------------
-uint8_t L298NEM::gas ()
-{
-  if (_speed<245)  _speed=_speed+10;        
-  else _speed=255;
-  speed(_speed);
-  return _speed;
-}
+
