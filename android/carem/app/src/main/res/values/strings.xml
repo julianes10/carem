@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Car EM remote control</string>
+    <string name="edit_message">Ip or name of the car</string>
+    <string name="button_carname">Check</string>
+    <string name="forward_button">Forward</string>
+    <string name="backward_button">Backward</string>
+    <string name="left_button">Left</string>
+    <string name="tleft_button">Turn Left</string>
+    <string name="stop_button">STOP</string>
+    <string name="right_button">Right</string>
+    <string name="tright_button">Turn Right</string>
+    <string name="gas_button">Gas</string>
+    <string name="brake_button">Brake</string>
+    <string name="uturn_button">U Turn</string>
+</resources>
