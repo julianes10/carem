@@ -12,4 +12,5 @@
     <string name="gas_button">Gas</string>
     <string name="brake_button">Brake</string>
     <string name="uturn_button">U Turn</string>
+    <string name="title_activity_accelerometer">Accelerometer</string>
 </resources>

@@ -17,11 +17,16 @@ public class DisplayMessageActivity extends AppCompatActivity {
     private String carip;
     private BroadcastReceiver receiver;
     private ProgressBar pbCom;
+    public boolean dd; //debug detail
+    public boolean d;  //debug
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
+
+        dd=false;
+        d=true;
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();

@@ -24,11 +24,17 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver receiver;
     private TextView comResult;
     private ProgressBar pbCom;
+    public boolean dd; //debug detail
+    public boolean d;  //debug
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dd=false;
+        d=true;
+
         comResult = findViewById(R.id.comResult);
         comResult.setBackgroundColor(getResources().getColor(R.color.comNoaction));
         pbCom = findViewById(R.id.pbCom);
@@ -39,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String s = intent.getStringExtra(carEmBackgroundTask.CAREM_MESSAGE);
-                Log.d("CAREM-MAIN result:", s);
+                if (d) Log.d("CAREM-MAIN result:", s);
                 if (s.equals("OK")){
                     comResult.setBackgroundColor(getResources().getColor(R.color.comOK));
                     pbCom.setVisibility(View.INVISIBLE);
@@ -108,6 +114,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onStop();
+    }
+
+    public void go2MovementMode(View view) {
+        Intent intent = new Intent(this, Accelerometer.class);
+        intent.putExtra("CARIP",getCarIp());
+        //this.stop(view);
+        startActivity(intent);
     }
 }
 

@@ -234,13 +234,15 @@
         android:id="@+id/btUturn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@android:color/holo_orange_dark"
         android:onClick="uturn"
         android:text="@string/uturn_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btTleft"
-        tools:layout_editor_absoluteX="91dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btTleft" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline12"
@@ -279,5 +281,17 @@
         android:layout_marginRight="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/comResult" />
+
+    <Button
+        android:id="@+id/btAcc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:onClick="go2MovementMode"
+        android:text="MoveMode"
+        app:layout_constraintBottom_toTopOf="@+id/pbCom"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

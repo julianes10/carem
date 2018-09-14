@@ -22,11 +22,16 @@ import java.net.URLEncoder;
 
 public class carEmBackgroundTask extends IntentService {
 
+    public boolean dd; //debug detail
+    public boolean d;  //debug
+
     public carEmBackgroundTask() {
         super("HelloIntentService");
-        Log.d("CAREM-BG","Starting");
-
+        dd=false;
+        d=true;
+        if (dd) Log.d("CAREM","Starting");
     }
+
 
     /**
      * The IntentService calls this method from the default worker thread with
@@ -35,7 +40,7 @@ public class carEmBackgroundTask extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d("CAREM-BG", "onHandleIntent-enter");
+        if (dd) Log.d("CAREM", "onHandleIntent-enter");
         URL url;
         HttpURLConnection urlConnection = null;
         String result="KO";
@@ -53,10 +58,8 @@ public class carEmBackgroundTask extends IntentService {
                 value = b.getString("value");
             }  catch (Exception e) {
                 e.printStackTrace();
-                Log.d("CAREM-BG Exception", "no tar or value");
+                if (d) Log.d("CAREM-BG Exception", "no tar or value");
             }
-
-            Log.d("CAREM-BG", "rest:"+rest+";CAR IP:"+carip);
 
             url = new URL("http://" + carip + ":5001/api/v1.0/ce/" + rest);
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -74,13 +77,16 @@ public class carEmBackgroundTask extends IntentService {
                 urlConnection.connect();
                 JSONObject jsonParam = new JSONObject();
                 jsonParam.put(tag, value);
+                if (d) Log.d("CAREM", "POST CAR IP:"+carip+" " + rest + " " + tag + " " + value );
 
                 DataOutputStream printout = new DataOutputStream(urlConnection.getOutputStream());
                 printout.writeBytes(jsonParam.toString());
                 printout.flush ();
                 printout.close ();
             }
-            // else GET
+            else {
+                if (d) Log.d("CAREM", "GET CAR IP:"+carip+" " + rest);
+            }
 
             StringBuilder translateResult = new StringBuilder(200);
             try {
@@ -91,29 +97,29 @@ public class carEmBackgroundTask extends IntentService {
                         (buffer)) > 0) {
                     translateResult.append(buffer, 0, charsRead);
                 }
-                Log.d("CAREM-BG response :", translateResult.toString());
+                if (dd) Log.d("CAREM","response:"+ translateResult.toString());
             } catch (Exception e) {
-                Log.d("CAREM-BG Exception", e.getLocalizedMessage());
+                if (d) Log.d("CAREM", "Exception" + e.getLocalizedMessage());
             }
             //Process json
             try {
                 JSONObject object = new JSONObject(translateResult.toString());
-                Log.d("CAREM-BG response json:", object.toString());
+                if (dd) Log.d("CAREM","response json:"+ object.toString());
                 result = object.getString("result");
-                Log.d("CAREM-BG response result:", result);
+                if (d) Log.d("CAREM","response result:"+ result);
             } catch (Exception e) {
-                Log.d("CAREM-BG Exception", e.getLocalizedMessage());
+                if (d) Log.d("CAREM","Exception "+ e.getLocalizedMessage());
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d("CAREM-BG", "onHandleIntent-exit-exception");
+            if (d) Log.d("CAREM", "onHandleIntent-exit-exception");
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
         }
         sendResultUI(result);
-        Log.d("CAREM-BG", "onHandleIntent-exit");
+        if (dd) Log.d("CAREM", "onHandleIntent-exit");
     }
 
     static final public String CAREM_RESULT = "com.carem.REQUEST_PROCESSED";
