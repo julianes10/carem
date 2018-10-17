@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
 #include "carEngine.h"
+#include "carLight.h"
 #include "lsem.h"
 
 
@@ -13,11 +14,6 @@ void STATE_idle(void);
 
 // State pointer function
 void (*GLBptrStateFunc)();
-void GLBcallbackTimeoutFLS(void);
-void GLBcallbackTimeoutSLS(void);
-void GLBcallbackPauseFLS(void);
-void GLBcallbackPauseSLS(void);
-
 
 
 //------------------------------------------------
@@ -28,21 +24,38 @@ char    GLBauxString[100];
 int     GLBserialIx=0;
 bool    GLBserialInputStringReady = false; // whether the string is complete
 
-const char inputBootString[] PROGMEM ={":LP0020:LT0005:LMK:LCFF,00,00:LQ:LMk:LQ:LMN"};
+const char inputBootStringFLS[] PROGMEM ={":LP0080:LT0030:LMK:LCFF,00,00"};
+
+const char inputBootStringSLS[] PROGMEM ={":MP0080:MT0030:MMK:MC00,00,FF"};
 
 CarEngine car;
 
+#define NUM_LEDS_FRONT  10
+#define NUM_LEDS_STDCAR 13
+#define DATA_PIN_LS_FRONT 8
+#define DATA_PIN_LS_STDCAR 9
 
-#define NUM_LEDS_FRONT  8
-#define NUM_LEDS_STDCAR 10
-#define DATA_PIN_LS_FRONT 7
-#define DATA_PIN_LS_STDCAR 8
+//------------------------------------------------
+//-------    TIMER CALLBACKS PROTOTYPES  ---------
+//------------------------------------------------
+void GLBcallbackTimeoutFLS(void);
+void GLBcallbackTimeoutSLS(void);
+void GLBcallbackPauseFLS(void);
+void GLBcallbackPauseSLS(void);
+
+//------------------------------------------------
+//-------    GLOBAL VARS TO THIS MODULE  ---------
+//------------------------------------------------
 CRGB FrontLS[NUM_LEDS_FRONT];
 CRGB StdCarLS[NUM_LEDS_STDCAR];
 
-
 LSEM fLS(FrontLS, NUM_LEDS_FRONT, GLBcallbackPauseFLS, GLBcallbackTimeoutFLS);
 LSEM sLS(StdCarLS,NUM_LEDS_STDCAR,GLBcallbackPauseSLS, GLBcallbackTimeoutSLS);
+
+
+
+
+CarLight lights(&fLS,&sLS);
 
 
 //------------------------------------------------
@@ -78,6 +91,10 @@ void GLBcallbackPauseSLS(void)
   sLS.callbackPause();
 }
 
+
+
+
+
 //------------------------------------------------
 
 void setup() { 
@@ -90,10 +107,12 @@ void setup() {
   GLBptrStateFunc = STATE_init;
   Serial.println(F("STATE INIT"));
 
+
+  sLS.customProtocolId('M');
   FastLED.addLeds<WS2812B,DATA_PIN_LS_FRONT,GRB>(FrontLS, NUM_LEDS_FRONT);
   FastLED.addLeds<WS2812B,DATA_PIN_LS_STDCAR,GRB>(StdCarLS, NUM_LEDS_STDCAR);
 
-  sLS.customProtocolId('M');
+
   
 }
 
@@ -117,18 +136,20 @@ void processSerialInputString()
   strcpy(GLBauxString,GLBserialInputString);
   GLBserialInputString[0]=0;
   GLBserialInputStringReady = false;
-  fLS.processCommands(GLBauxString);
-  sLS.processCommands(GLBauxString);
+  lights.f->processCommands(GLBauxString);
+  lights.s->processCommands(GLBauxString);
   car.processCommands(GLBauxString);
 }
 
 //-------------------------------------------------
 void STATE_init(void)
 {
-  Serial.println(F("DEBUG: inputBootString..."));
-  strcpy_P(GLBauxString,(char*)inputBootString);
-  fLS.processCommands(GLBauxString);
-  sLS.processCommands(GLBauxString);
+
+  Serial.println(F("DEBUG: inputBootStringFLS..."));
+  strcpy_P(GLBauxString,(char*)inputBootStringFLS);
+  lights.f->processCommands(GLBauxString);
+  strcpy_P(GLBauxString,(char*)inputBootStringSLS);
+  lights.s->processCommands(GLBauxString);
 
 
   GLBptrStateFunc=STATE_welcome;
@@ -137,7 +158,7 @@ void STATE_init(void)
 //-------------------------------------------------
 void STATE_welcome(void)
 {
-  if (fLS.isIdle()) {
+  if (lights.f->isIdle()) {
     GLBptrStateFunc=STATE_idle;
     Serial.println(F("STATE WELCOME -> IDLE"));
   }
@@ -163,9 +184,7 @@ void loop() {
 
   // ------------- OUTPUT REFRESHING ---------------
   // Write led strip
-  fLS.refresh();
-  sLS.refresh();
-  FastLED.show();
+  lights.refresh(car.getMode());
 
   // Write motor 
   car.refresh();
