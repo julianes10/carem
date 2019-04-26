@@ -11,6 +11,7 @@ function usage
   echo  "$0 
            --dance
            --hello
+           --christmas
            --help"
   echo "Notes:
            --color will change main color theme on led strip
@@ -25,6 +26,42 @@ function sendLSRaw
   curl -i -H "Content-Type: application/json" -X POST -d '{"raw":"'$1'"}' http://localhost:5001/api/v1.0/ls/raw
 } 
 
+################################################
+function christmas
+{
+  sendLSRaw ":LP0200:LMN"
+  sendLSRaw ":MP0200:MMN"
+  for i in `seq 1 3`;
+  do
+    sleep 0.2
+    sendLSRaw ":LP0100"
+    sendLSRaw ":MP0100"
+    sleep 0.2
+    sendLSRaw ":LP0300"
+    sendLSRaw ":MP0300"
+    sleep 0.2
+    sendLSRaw ":LP0200"
+    sendLSRaw ":MP0200"
+
+    sendLSRaw ":LMn"
+    sendLSRaw ":MMn"
+    sleep 3
+
+    sleep 1
+    sendLSRaw ":LC00,00,00"
+    sendLSRaw ":MC00,00,00"
+    sendLSRaw ":LMC"
+    sendLSRaw ":MMC"
+    sleep 3
+    sendLSRaw ":LMT"
+    sendLSRaw ":MMT"
+    sleep 3
+
+  done
+
+  sendLSRaw ":LX"
+  sendLSRaw ":MX"
+} 
 ################################################
 function dance
 {
@@ -71,6 +108,9 @@ elif [ "$1" == "" ]; then
   exit -1
 elif [ "$1" == "--dance" ]; then
   dance 
+  exit 0
+elif [ "$1" == "--christmas" ]; then
+  christmas 
   exit 0
 elif [ "$1" == "--hello" ]; then
   hello 

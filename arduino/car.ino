@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include <Ultrasonic.h>
 
 #include "carEngine.h"
 #include "carLight.h"
@@ -34,6 +35,12 @@ CarEngine car;
 #define NUM_LEDS_STDCAR 13
 #define DATA_PIN_LS_FRONT 8
 #define DATA_PIN_LS_STDCAR 9
+
+
+Ultrasonic ultrasonic(2, 3,20000UL);
+int distance;
+SimpleTimer timerUltrasonic;
+
 
 //------------------------------------------------
 //-------    TIMER CALLBACKS PROTOTYPES  ---------
@@ -92,6 +99,14 @@ void GLBcallbackPauseSLS(void)
 }
 
 
+//------------------------------------------------
+
+void cbUltrasonic(void)
+{
+  distance = ultrasonic.read();
+  Serial.println(F("DEBUG: Distance CM:"));
+  Serial.println(distance);
+}
 
 
 
@@ -112,8 +127,9 @@ void setup() {
   FastLED.addLeds<WS2812B,DATA_PIN_LS_FRONT,GRB>(FrontLS, NUM_LEDS_FRONT);
   FastLED.addLeds<WS2812B,DATA_PIN_LS_STDCAR,GRB>(StdCarLS, NUM_LEDS_STDCAR);
 
-
-  
+  distance=200;
+  timerUltrasonic.setInterval(200,cbUltrasonic);
+ 
 }
 
 //------------------------------------------------
@@ -168,6 +184,7 @@ void STATE_idle(void)
 {
   if (GLBserialInputStringReady){
     processSerialInputString();
+
   }
 }
 
@@ -177,19 +194,20 @@ void STATE_idle(void)
 void loop() { 
 
   //------------- INPUT REFRESHING ----------------
+  // distance is readed when timer expired
+  timerUltrasonic.run();
 
   //--------- TIME TO THINK MY FRIEND -------------
   // State machine as main controller execution
   GLBptrStateFunc();
 
+
   // ------------- OUTPUT REFRESHING ---------------
   // Write led strip
-  lights.refresh(car.getMode());
+  lights.refresh(car.getMode(),distance);
 
   // Write motor 
   car.refresh();
-
-
 
 }
 

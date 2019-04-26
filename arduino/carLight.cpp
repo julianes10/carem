@@ -32,10 +32,17 @@ CarLight::CarLight(LSEM *fLS,LSEM *sLS)
 
 }
 
-//------------------------------------------------
-void CarLight::refresh(uint8_t mode)
-{
+const char nearf[]      PROGMEM ={":LP0080:LT0020:LMA:LC"};
+const char nears[]      PROGMEM ={":MP0080:MT0020:MMA:MC"};
+const char veryNearf[]  PROGMEM ={":LP0080:LT0020:LMN"};
+const char veryNears[]  PROGMEM ={":MP0080:MT0020:MMN"};
 
+//------------------------------------------------
+void CarLight::refresh(uint8_t mode, int distance)
+{
+   char aux[20];
+   char aux2[10];
+/*
   if (mode==E_MODE_ZERO) {
      //std light off
   }
@@ -48,8 +55,40 @@ void CarLight::refresh(uint8_t mode)
     case E_MODE_RIGHT:         setFlashingRight();    break;
     default: _doStop();                            break;
   }
+*/
+  if (f->isIdle() && s->isIdle())
+  {
+    if (distance < 5)
+    {
+      strcpy_P(aux,(char*)veryNearf);
+      f->processCommands(aux);
+      strcpy_P(aux,(char*)veryNears);
+      s->processCommands(aux);
+    }
+    else if (distance < 30)
+    {
 
-  setFront();//TESTT PPPPPPPPPPPPPPPPPPPPPPPPPPPP TODO
+      if (distance < 10){
+        strcpy(aux2,"00,00,FF");
+      }
+      else if (distance < 15){
+        strcpy(aux2,"df,42,f4");
+      }
+      else if (distance < 20){
+        strcpy(aux2,"FF,00,00");
+      }
+      else if (distance < 25){
+        strcpy(aux2,"00,FF,00");
+      }
+      strcpy_P(aux,(char*)nearf);
+      strcat_P(aux,aux2);
+      f->processCommands(aux);
+      strcpy_P(aux,(char*)nears);
+      strcat_P(aux,aux2);
+      s->processCommands(aux);
+    }
+  }
+  //setFront();//TESTT PPPPPPPPPPPPPPPPPPPPPPPPPPPP TODO
   f->refresh();
   s->refresh();
   FastLED.show();

@@ -19,7 +19,7 @@ class CarLight
 
   CarLight(LSEM *fLS,LSEM *sLS);
 
-  void refresh(uint8_t mode);
+  void refresh(uint8_t mode,int distance);
   void setFront();
   void setBack();
   void setFlashingLeft();
